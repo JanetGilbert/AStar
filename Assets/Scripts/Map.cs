@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using System;
+
+
 
 /* A class to contain the tile grid and serve as a base class for the path algorithms.*/
 public class Map : MonoBehaviour
@@ -56,6 +57,27 @@ public class Map : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             AdvanceDisplay();
+        }
+
+        
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+           
+        }
+
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+
+        }
+
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+
+        }
+
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+
         }
     }
 
@@ -157,31 +179,34 @@ public class Map : MonoBehaviour
         return false;
     }
 
-    // Reset display path display.
+    // Reset path overlay display.
     protected void ClearDisplay()
     {
         for (int x = 0; x < sizeX; x++)
         {
             for (int y = 0; y < sizeY; y++)
             {
-                if (tileGrid[x, y].State == TileType.Path)
-                {
-                    tileGrid[x, y].State = TileType.Normal;
-                }
+                tileGrid[x, y].ClearRouteOverlay();
             }
         }
 
         displayIndex = 0;
     }
 
-    // Display next point in path.
+    // Display the next point in the path overlay.
     private void AdvanceDisplay()
     {
+        for (int i = 0; i < displayIndex; i++)
+        {
+            tileGrid[pathTiles[i].Pos.x, pathTiles[i].Pos.y].DisplayAsRoute();
+        }
+
         if (displayIndex < pathTiles.Count)
         {
-            tileGrid[pathTiles[displayIndex].Pos.x, pathTiles[displayIndex].Pos.y].State = TileType.Path;
-            displayIndex++;
+            tileGrid[pathTiles[displayIndex].Pos.x, pathTiles[displayIndex].Pos.y].DisplayAsCursor();
         }
+
+        displayIndex++;
     }
 
 

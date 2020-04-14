@@ -29,7 +29,7 @@ public class MapAStar : Map
     {
         base.Update();
 
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.P))
         {
             CalculateAStar();
             ClearDisplay();
