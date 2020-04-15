@@ -63,43 +63,14 @@ public abstract class Map : MonoBehaviour
 
         SetStartPos(4, 1);
         SetDestPos(5, 7);
+
+      
     }
 
     // Virtual so that it can be overriden in derived class.
     protected virtual void Update()
     {
-        // Display next tile in path when user presses space.
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            AdvanceDisplay();
-        }
-
         
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            BoardDrawingState = TileType.Start;
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            BoardDrawingState = TileType.End;
-        }
-
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            BoardDrawingState = TileType.Obstacle;
-        }
-
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            BoardDrawingState = TileType.Normal;
-        }
-
-
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            ClearGrid();
-        }
     }
 
     // Initialize empty grid.
@@ -109,6 +80,17 @@ public abstract class Map : MonoBehaviour
         float gridW = spriteRenderer.bounds.size.x; // Get size of sprite.
         float gridH = spriteRenderer.bounds.size.y;
         Vector3 tilePos = transform.position;
+
+        if (tileGrid != null)
+        {
+            for (int x = 0; x < sizeX; x++)
+            {
+                for (int y = 0; y < sizeY; y++)
+                {
+                    Destroy(tileGrid[x,y].gameObject);
+                }
+            }
+        }
 
         tileGrid = new Tile[sizeX, sizeY];
 
@@ -129,6 +111,28 @@ public abstract class Map : MonoBehaviour
             tilePos.y = transform.position.y;
         }
 
+
+        // Fit grid to screen.
+        // Taken from https://pressstart.vip/tutorials/2018/06/6/37/understanding-orthographic-size.html
+        Vector3 boardSize = new Vector3(gridW * sizeX, gridH * (sizeY+1), 0.0f);
+        float screenRatio = (float)Screen.width / (float)Screen.height;
+        float targetRatio = boardSize.x / boardSize.y;
+
+        if (screenRatio >= targetRatio)
+        {
+            Camera.main.orthographicSize = boardSize.y / 2;
+        }
+        else
+        {
+            float differenceInSize = targetRatio / screenRatio;
+            Camera.main.orthographicSize = boardSize.y / 2 * differenceInSize;
+        }
+
+        // Center grid inside camera view.
+        Vector3 cameraPos = new Vector3((boardSize.x * 0.5f) - (gridW/2.0f),
+            (boardSize.y/ 2.0f) - (gridH / 2.0f),
+            Camera.main.transform.position.z);
+        Camera.main.transform.position = cameraPos;
     }
 
     // Place a rectangular obstacle.
@@ -233,6 +237,15 @@ public abstract class Map : MonoBehaviour
         
     }
 
+    // Display the the whole path overlay.
+    public void DisplayAllRoute()
+    {
+        displayIndex = pathTiles.Count - 1;
+        AdvanceDisplay();
+
+
+    }
+
 
     // Mouse clicked on a tile
     public void TileClick(Tile tileClicked)
@@ -288,6 +301,39 @@ public abstract class Map : MonoBehaviour
         SetStartPos(0, 0);
         SetDestPos(sizeX-1, sizeY-1);
     }
+
+    // For buttons
+    public void ButtonSetStart()
+    {
+        BoardDrawingState = TileType.Start;
+    }
+
+    public void ButtonSetEnd()
+    {
+        BoardDrawingState = TileType.End;
+    }
+
+    public void ButtonSetObstacle()
+    {
+        BoardDrawingState = TileType.Obstacle;
+    }
+
+    public void ButtonSetNormal()
+    {
+        BoardDrawingState = TileType.Normal;
+    }
+
+    public void ButtonClear()
+    {
+        ClearGrid();
+        InitGrid();
+    }
+
+    public virtual void RunPathfindingAlgorithm()
+    {
+        
+    }
+
 
 }
 

@@ -29,11 +29,7 @@ public class MapAStar : Map
     {
         base.Update();
 
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            CalculateAStar();
-            ClearDisplay();
-        }
+
     }
 
     // Find the path to the destination using the A* algorithm.
@@ -132,7 +128,7 @@ public class MapAStar : Map
         public AStarTile prev; // The previous tile in the path.
         public int distFromStart; // How far have we come from the start?
         public int distFromEnd; // A guess at how far we are from the destination.
-        public int Cost
+        public int Cost // How good is this tile? The lower the better.
         {
             get
             {
@@ -162,6 +158,13 @@ public class MapAStar : Map
                 displayTile.Pos = value;
             }
         }
+    }
+
+    public override void RunPathfindingAlgorithm()
+    {
+        ClearDisplay();
+        CalculateAStar();
+        DisplayAllRoute();
     }
 }
 

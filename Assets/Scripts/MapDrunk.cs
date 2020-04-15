@@ -59,4 +59,12 @@ public class MapDrunk : Map
             sanityCheck--;
         }
     }
+
+
+    public override void RunPathfindingAlgorithm()
+    {
+        ClearDisplay();
+        CalculateDrunkardsWalk();
+        DisplayAllRoute();
+    }
 }
