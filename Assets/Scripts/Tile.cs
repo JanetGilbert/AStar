@@ -11,25 +11,38 @@ public class Tile : MonoBehaviour
 {
     [SerializeField]
     [HeaderAttribute("The scriptable object that holds data about tile definitions.")]
-    private GameData gameData; 
+    private GameData gameData = null; 
 
     [SerializeField]
     [HeaderAttribute("The overlay sprite that displays the path.")]
-    private SpriteRenderer routeRenderer;
+    private SpriteRenderer routeRenderer = null;
 
     [SerializeField]
     [HeaderAttribute("The overlay sprite that displays the current end of the path")]
-    private SpriteRenderer cursorRenderer;
+    private SpriteRenderer cursorRenderer = null;
 
     private SpriteRenderer spriteRenderer; // Cache the renderer of the sprite so we can change its color.
+    private Map map;
 
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+       
     }
 
     void Start()
     {
+        // Ensure we get an active map if some may be inactive.
+        Map [] maps = GetComponentsInParent<Map>();
+
+        foreach (Map m in maps)
+        {
+            if (m.enabled)
+            {
+                map = m;
+            }
+        }
+
         ClearRouteOverlay();
     }
    
@@ -91,6 +104,17 @@ public class Tile : MonoBehaviour
         cursorRenderer.enabled = false;
         routeRenderer.enabled = true;
     }
+
+    // Draw obstacles onto map.
+    public void OnMouseOver()
+    {
+        if (Input.GetMouseButton(0))
+        {
+            map.TileClick(this);
+        }
+    }
+
+
 
 }
 

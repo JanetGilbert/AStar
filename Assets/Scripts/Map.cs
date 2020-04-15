@@ -5,11 +5,11 @@ using UnityEngine;
 
 
 /* A class to contain the tile grid and serve as a base class for the path algorithms.*/
-public class Map : MonoBehaviour
+public abstract class Map : MonoBehaviour
 {
     [HeaderAttribute("Prefab to create individual tiles")]
     [SerializeField]
-    private Tile tilePrefab;
+    private Tile tilePrefab = null;
 
     [HeaderAttribute("Grid size")]
     [SerializeField]
@@ -39,6 +39,21 @@ public class Map : MonoBehaviour
                                             Vector2Int.left,
                                             Vector2Int.right };
 
+    // Drawing board state.
+    private TileType _boardDrawingState;
+
+    public TileType BoardDrawingState
+    {
+        get
+        {
+            return _boardDrawingState;
+        }
+        set
+        {
+            _boardDrawingState = value;
+        }
+    }
+
     // Virtual so that it can be overriden in derived class.
     protected virtual void Start()
     {
@@ -62,22 +77,28 @@ public class Map : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.S))
         {
-           
+            BoardDrawingState = TileType.Start;
         }
 
-        if (Input.GetKeyDown(KeyCode.D))
+        if (Input.GetKeyDown(KeyCode.E))
         {
-
+            BoardDrawingState = TileType.End;
         }
 
         if (Input.GetKeyDown(KeyCode.O))
         {
-
+            BoardDrawingState = TileType.Obstacle;
         }
 
         if (Input.GetKeyDown(KeyCode.N))
         {
+            BoardDrawingState = TileType.Normal;
+        }
 
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            ClearGrid();
         }
     }
 
@@ -196,21 +217,77 @@ public class Map : MonoBehaviour
     // Display the next point in the path overlay.
     private void AdvanceDisplay()
     {
-        for (int i = 0; i < displayIndex; i++)
-        {
-            tileGrid[pathTiles[i].Pos.x, pathTiles[i].Pos.y].DisplayAsRoute();
-        }
 
         if (displayIndex < pathTiles.Count)
         {
+            for (int i = 0; i < displayIndex; i++)
+            {
+                tileGrid[pathTiles[i].Pos.x, pathTiles[i].Pos.y].DisplayAsRoute();
+            }
+
             tileGrid[pathTiles[displayIndex].Pos.x, pathTiles[displayIndex].Pos.y].DisplayAsCursor();
+
+            displayIndex++;
         }
 
-        displayIndex++;
+        
     }
 
 
+    // Mouse clicked on a tile
+    public void TileClick(Tile tileClicked)
+    {
+        
+        if (BoardDrawingState == TileType.Start)
+        {
+            startPos = tileClicked.Pos;
 
+            for (int x = 0; x < sizeX; x++)
+            {
+                for (int y = 0; y < sizeY; y++)
+                {
+                    if (tileGrid[x, y].State == TileType.Start)
+                    {
+                        tileGrid[x, y].State = TileType.Normal;
+                    }
+                }
+            }
+        }
+
+        if (BoardDrawingState == TileType.End)
+        {
+            destPos = tileClicked.Pos;
+
+            for (int x = 0; x < sizeX; x++)
+            {
+                for (int y = 0; y < sizeY; y++)
+                {
+                    if (tileGrid[x, y].State == TileType.End)
+                    {
+                        tileGrid[x, y].State = TileType.Normal;
+                    }
+                }
+            }
+        }
+
+        tileClicked.State = BoardDrawingState;
+    }
+
+    // Set grid to empty.
+    private void ClearGrid()
+    {
+        for (int x = 0; x < sizeX; x++)
+        {
+            for (int y = 0; y < sizeY; y++)
+            {
+               tileGrid[x, y].State = TileType.Normal;
+                tileGrid[x, y].ClearRouteOverlay();
+            }
+        }
+
+        SetStartPos(0, 0);
+        SetDestPos(sizeX-1, sizeY-1);
+    }
 
 }
 
