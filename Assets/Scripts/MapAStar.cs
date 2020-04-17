@@ -41,13 +41,69 @@ public class MapAStar : Map
         List<AStarTile> closed = new List<AStarTile>(); // List of tiles we have already checked.
         AStarTile current = start;
 
+        // Add the starting tile to the open list.
+        open.Add(start);
+        start.prev = null;
+
+        // Repeat until we have either checked all tiles or found the end.
+        while (open.Count > 0 && !open.Contains(end))
+        {
+            // Find the tile on the open list with the least cost.
+            int minCost = int.MaxValue;
+            int lowestIndex = 0;
+
+            for (int t = 0; t < open.Count; t++)
+            {
+                if (open[t].Cost < minCost)
+                {
+                    minCost = open[t].Cost;
+                    lowestIndex = t;
+                }
+            }
+
+            current = open[lowestIndex]; // Move to the tile with least cost.
+            open.Remove(current); // Remove it from the open list.
+            closed.Add(current); // Add it to the closed list.
 
 
+            // Find all valid adjacent tiles.
+            List<AStarTile> adjacent = new List<AStarTile>();
 
-        // !!! INSERT ALGORITHM HERE !!!
+            foreach (Vector2Int dir in allDirections)
+            {
+                Vector2Int pos = current.Pos + dir;
+                if (IsValidTile(pos)) // Check that it is possible to move to the tile.
+                {
+                    if (!closed.Contains(aStarTiles[pos.x, pos.y])) // Make sure the tile hasn't been already checked.
+                    {
+                        adjacent.Add(aStarTiles[pos.x, pos.y]);
+                    }
+                }
+            }
 
-
-
+            // Add the best adjacent tile to the path.
+            foreach (AStarTile tile in adjacent)
+            {
+                if (open.Contains(tile))
+                {
+                    // If the adjacent tile is already in the open list, and the distance is shorter via this route,
+                    // set the current tile to be its "parent." 
+                    if (current.distFromStart + 1 < tile.distFromStart)
+                    {
+                        tile.distFromStart = current.distFromStart + 1;
+                        tile.prev = current;
+                    }
+                }
+                else
+                {
+                    // If the adjacent tile is not in the open list, add it, and set the current tile to be its "parent." 
+                    open.Add(tile);
+                    tile.prev = current;
+                    tile.distFromStart = current.distFromStart + 1;
+                    tile.distFromEnd = Mathf.Abs(tile.Pos.x - end.Pos.x) + Mathf.Abs(tile.Pos.y - end.Pos.y);
+                }
+            }
+        }
 
         // Build display path.
         pathTiles = new List<Tile>();
@@ -65,9 +121,8 @@ public class MapAStar : Map
             pathTiles.Reverse(); // Reverse display path as it is built from the destination to the start.
         }
 
-    
-    }
 
+    }
     // Local class for containing extra details about tiles that the A* algorithm needs.
     // (only accessible to the MapAStar class)
     private class AStarTile
