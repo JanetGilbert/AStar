@@ -107,14 +107,19 @@ public class MapAStar : Map
 
         // Build display path.
         pathTiles = new List<Tile>();
-        current = end;
-        while (current.prev != null)
-        {
-            pathTiles.Add(current.displayTile);
-            current = current.prev;
-        }
 
-        pathTiles.Reverse(); // Reverse display path as it is built from the destination to the start.
+
+        if (open.Contains(end))
+        {
+            current = end;
+            while (current.prev != null)
+            {
+                pathTiles.Add(current.displayTile);
+                current = current.prev;
+            }
+
+            pathTiles.Reverse(); // Reverse display path as it is built from the destination to the start.
+        }
 
     
     }
