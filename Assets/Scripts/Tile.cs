@@ -17,10 +17,6 @@ public class Tile : MonoBehaviour
     [HeaderAttribute("The overlay sprite that displays the path.")]
     private SpriteRenderer routeRenderer = null;
 
-    [SerializeField]
-    [HeaderAttribute("The overlay sprite that displays the current end of the path")]
-    private SpriteRenderer cursorRenderer = null;
-
     private SpriteRenderer spriteRenderer; // Cache the renderer of the sprite so we can change its color.
     private Map map;
 
@@ -32,7 +28,7 @@ public class Tile : MonoBehaviour
 
     void Start()
     {
-        // Ensure we get an active map if some may be inactive.
+        // Ensure we get an active map if some in scene may be inactive.
         Map [] maps = GetComponentsInParent<Map>();
 
         foreach (Map m in maps)
@@ -43,7 +39,7 @@ public class Tile : MonoBehaviour
             }
         }
 
-        ClearRouteOverlay();
+        RouteOverlay = false;
     }
    
     void Update()
@@ -84,28 +80,16 @@ public class Tile : MonoBehaviour
         }
     }
 
-    // Reset overlay display.
-    public void ClearRouteOverlay()
+    // Overlay tile with route marker so we can see the route that has been calculated.
+    public bool RouteOverlay
     {
-        cursorRenderer.enabled = false;
-        routeRenderer.enabled = false;
+        set
+        {
+            routeRenderer.enabled = value;
+        }
     }
 
-    // Display an overlay to show that this tile is the current end of the path.
-    public void DisplayAsCursor()
-    {
-        cursorRenderer.enabled = true;
-        routeRenderer.enabled = false;
-    }
-
-    // Display an overlay to show that this tile is on the path.
-    public void DisplayAsRoute()
-    {
-        cursorRenderer.enabled = false;
-        routeRenderer.enabled = true;
-    }
-
-    // Draw obstacles onto map.
+    // Paint features onto the map.
     public void OnMouseOver()
     {
         if (Input.GetMouseButton(0))
@@ -113,8 +97,5 @@ public class Tile : MonoBehaviour
             map.TileClick(this);
         }
     }
-
-
-
 }
 

@@ -115,9 +115,9 @@ public class MapAStar : Map
         }
 
         pathTiles.Reverse(); // Reverse display path as it is built from the destination to the start.
+
+    
     }
-
-
 
     // Local class for containing extra details about tiles that the A* algorithm needs.
     // (only accessible to the MapAStar class)
@@ -164,7 +164,7 @@ public class MapAStar : Map
     {
         ClearDisplay();
         CalculateAStar();
-        DisplayAllRoute();
+        DisplayRoute();
     }
 }
 

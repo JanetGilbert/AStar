@@ -17,8 +17,9 @@ public struct TypeColor
 [CreateAssetMenu(fileName = "GameData", menuName = "ScriptableObjects/GameData", order = 1)]
 public class GameData : ScriptableObject
 {
+    [HeaderAttribute("Link a Tile Type to the color to display it in.")]
     [SerializeField]
-    private TypeColor[] typeColors; // Link Tile type to display color.
+    private TypeColor[] typeColors = null; // 
 
     // Find the correct color for the current tile type.
     public Color GetTypeColor(TileType tileType)

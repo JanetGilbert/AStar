@@ -21,5 +21,3 @@ MonoBehaviour:
     color: {r: 0, g: 0.5191617, b: 1, a: 1}
   - type: 3
     color: {r: 1, g: 0, b: 0, a: 1}
-  - type: 4
-    color: {r: 0.9622642, g: 0.503827, b: 0.8746828, a: 1}

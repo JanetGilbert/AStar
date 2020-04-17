@@ -24,11 +24,10 @@ public abstract class Map : MonoBehaviour
     protected Vector2Int startPos;
     protected Vector2Int destPos;
 
-    // The calculated path to display.
+    // The path to display.
     protected List<Tile> pathTiles;
-    protected int displayIndex; // Current path object to display.
 
-    // All possible directions. (could be simplified to just up, down, left, right)
+    // All possible directions. 
     protected readonly Vector2Int[] allDirections =
                                            {Vector2Int.up,
                                             Vector2Int.up + Vector2Int.left,
@@ -39,18 +38,18 @@ public abstract class Map : MonoBehaviour
                                             Vector2Int.left,
                                             Vector2Int.right };
 
-    // Drawing board state.
-    private TileType _boardDrawingState;
+    // Drawing state.
+    private TileType _drawState;
 
-    public TileType BoardDrawingState
+    public TileType DrawState
     {
         get
         {
-            return _boardDrawingState;
+            return _drawState;
         }
         set
         {
-            _boardDrawingState = value;
+            _drawState = value;
         }
     }
 
@@ -63,8 +62,6 @@ public abstract class Map : MonoBehaviour
 
         SetStartPos(4, 1);
         SetDestPos(5, 7);
-
-      
     }
 
     // Virtual so that it can be overriden in derived class.
@@ -81,6 +78,7 @@ public abstract class Map : MonoBehaviour
         float gridH = spriteRenderer.bounds.size.y;
         Vector3 tilePos = transform.position;
 
+        // Destroy old grid.
         if (tileGrid != null)
         {
             for (int x = 0; x < sizeX; x++)
@@ -92,6 +90,7 @@ public abstract class Map : MonoBehaviour
             }
         }
 
+        // Create new grid.
         tileGrid = new Tile[sizeX, sizeY];
 
         for (int x = 0; x < sizeX; x++)
@@ -113,7 +112,7 @@ public abstract class Map : MonoBehaviour
 
 
         // Fit grid to screen.
-        // Taken from https://pressstart.vip/tutorials/2018/06/6/37/understanding-orthographic-size.html
+        // https://pressstart.vip/tutorials/2018/06/6/37/understanding-orthographic-size.html
         Vector3 boardSize = new Vector3(gridW * sizeX, gridH * (sizeY+1), 0.0f);
         float screenRatio = (float)Screen.width / (float)Screen.height;
         float targetRatio = boardSize.x / boardSize.y;
@@ -129,13 +128,10 @@ public abstract class Map : MonoBehaviour
         }
 
         // Center grid inside camera view.
-        Vector3 cameraPos = new Vector3((boardSize.x * 0.5f) - (gridW/2.0f),
-            (boardSize.y/ 2.0f) - (gridH / 2.0f),
-            Camera.main.transform.position.z);
-        Camera.main.transform.position = cameraPos;
+        Camera.main.transform.position = new Vector3((boardSize.x * 0.5f) - (gridW / 2.0f), (boardSize.y / 2.0f) - (gridH / 2.0f), Camera.main.transform.position.z);
     }
 
-    // Place a rectangular obstacle.
+    // Place an obstacle tile.
     private void PlaceObstacle(int posX, int posY, int sizeX, int sizeY)
     {
         for (int x = posX; x < posX + sizeX; x++)
@@ -147,7 +143,7 @@ public abstract class Map : MonoBehaviour
         }
     }
 
-    // Set Starting position.
+    // Set starting position.
     private void SetStartPos(int posX, int posY)
     {
         startPos = new Vector2Int(posX, posY);
@@ -186,7 +182,7 @@ public abstract class Map : MonoBehaviour
     }
 
 
-    // Is the position on the board and not blocked?
+    // Is the position on the board, and not blocked?
     public bool IsValidTile(Vector2Int pos)
     {
         if ((pos.x >= 0) &&
@@ -204,54 +200,36 @@ public abstract class Map : MonoBehaviour
         return false;
     }
 
-    // Reset path overlay display.
+    // Remove path overlay display.
     protected void ClearDisplay()
     {
         for (int x = 0; x < sizeX; x++)
         {
             for (int y = 0; y < sizeY; y++)
             {
-                tileGrid[x, y].ClearRouteOverlay();
+                tileGrid[x, y].RouteOverlay = false;
             }
         }
-
-        displayIndex = 0;
     }
 
-    // Display the next point in the path overlay.
-    private void AdvanceDisplay()
+    // Display the the path overlay.
+    public void DisplayRoute()
     {
-
-        if (displayIndex < pathTiles.Count)
+        if (pathTiles != null)
         {
-            for (int i = 0; i < displayIndex; i++)
+            for (int i = 0; i < pathTiles.Count; i++)
             {
-                tileGrid[pathTiles[i].Pos.x, pathTiles[i].Pos.y].DisplayAsRoute();
+                tileGrid[pathTiles[i].Pos.x, pathTiles[i].Pos.y].RouteOverlay = true;
             }
-
-            tileGrid[pathTiles[displayIndex].Pos.x, pathTiles[displayIndex].Pos.y].DisplayAsCursor();
-
-            displayIndex++;
         }
-
-        
-    }
-
-    // Display the the whole path overlay.
-    public void DisplayAllRoute()
-    {
-        displayIndex = pathTiles.Count - 1;
-        AdvanceDisplay();
-
-
     }
 
 
-    // Mouse clicked on a tile
+    // Mouse clicked on a tile: paint tiles.
     public void TileClick(Tile tileClicked)
     {
         
-        if (BoardDrawingState == TileType.Start)
+        if (DrawState == TileType.Start)
         {
             startPos = tileClicked.Pos;
 
@@ -267,7 +245,7 @@ public abstract class Map : MonoBehaviour
             }
         }
 
-        if (BoardDrawingState == TileType.End)
+        if (DrawState == TileType.End)
         {
             destPos = tileClicked.Pos;
 
@@ -283,10 +261,10 @@ public abstract class Map : MonoBehaviour
             }
         }
 
-        tileClicked.State = BoardDrawingState;
+        tileClicked.State = DrawState;
     }
 
-    // Set grid to empty.
+    // Reset grid.
     private void ClearGrid()
     {
         for (int x = 0; x < sizeX; x++)
@@ -294,7 +272,7 @@ public abstract class Map : MonoBehaviour
             for (int y = 0; y < sizeY; y++)
             {
                tileGrid[x, y].State = TileType.Normal;
-                tileGrid[x, y].ClearRouteOverlay();
+               tileGrid[x, y].RouteOverlay = false;
             }
         }
 
@@ -302,25 +280,25 @@ public abstract class Map : MonoBehaviour
         SetDestPos(sizeX-1, sizeY-1);
     }
 
-    // For buttons
+    // For UI buttons
     public void ButtonSetStart()
     {
-        BoardDrawingState = TileType.Start;
+        DrawState = TileType.Start;
     }
 
     public void ButtonSetEnd()
     {
-        BoardDrawingState = TileType.End;
+        DrawState = TileType.End;
     }
 
     public void ButtonSetObstacle()
     {
-        BoardDrawingState = TileType.Obstacle;
+        DrawState = TileType.Obstacle;
     }
 
     public void ButtonSetNormal()
     {
-        BoardDrawingState = TileType.Normal;
+        DrawState = TileType.Normal;
     }
 
     public void ButtonClear()
