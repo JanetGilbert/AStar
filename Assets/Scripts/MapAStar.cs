@@ -48,7 +48,7 @@ public class MapAStar : Map
         // Repeat until we have either checked all tiles or found the end.
         while (open.Count > 0 && !open.Contains(end))
         {
-            // Find the tile on the open list with the least cost to move to.
+            // Find the tile on the open list with the least cost.
             int minCost = int.MaxValue; 
             int lowestIndex = 0;
 
@@ -80,8 +80,8 @@ public class MapAStar : Map
                     }
                 }
             }
-
-            // Add the best a
+            
+            // Add the best adjacent tile to the path.
             foreach (AStarTile tile in adjacent)
             {
                 if (open.Contains(tile))

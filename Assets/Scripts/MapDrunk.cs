@@ -15,11 +15,7 @@ public class MapDrunk : Map
     protected override void Update()
     {
         base.Update();
-        if (Input.GetKeyDown(KeyCode.P)) // Trigger algorithm.
-        {
-            ClearDisplay();
-            CalculateDrunkardsWalk();
-        }
+        
     }
 
 
