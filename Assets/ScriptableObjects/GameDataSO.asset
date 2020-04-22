@@ -12,12 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a13548750f81d44fb9aaf71bc2003081, type: 3}
   m_Name: GameDataSO
   m_EditorClassIdentifier: 
-  typeColors:
+  typeData:
   - type: 0
     color: {r: 1, g: 1, b: 1, a: 1}
+    typeChar: 0
   - type: 1
-    color: {r: 0.6698113, g: 0.6698113, b: 0.6698113, a: 1}
+    color: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 1}
+    typeChar: 79
   - type: 2
-    color: {r: 0, g: 0.5191617, b: 1, a: 1}
+    color: {r: 0, g: 0.054832935, b: 1, a: 1}
+    typeChar: 83
   - type: 3
     color: {r: 1, g: 0, b: 0, a: 1}
+    typeChar: 69

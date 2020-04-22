@@ -17,6 +17,14 @@ public abstract class Map : MonoBehaviour
     [SerializeField]
     protected int sizeY = 10;
 
+    [HeaderAttribute("The scriptable object that holds data about tile definitions.")]
+    public GameData gameData = null;
+
+    [HeaderAttribute("The level to load.")]
+    [SerializeField]
+    private TextAsset levelAsset = null; 
+
+
     // Store tiles in grid.
     protected Tile[,] tileGrid;
 
@@ -52,12 +60,12 @@ public abstract class Map : MonoBehaviour
             _drawState = value;
         }
     }
-
+ 
     // Virtual so that it can be overriden in derived class.
     protected virtual void Start()
     {
         // Create simple grid test layout.
-        InitGrid();
+        InitGrid(sizeX, sizeY);
         PlaceObstacle(2,3,4,2);
 
         SetStartPos(4, 1);
@@ -71,12 +79,14 @@ public abstract class Map : MonoBehaviour
     }
 
     // Initialize empty grid.
-    private void InitGrid()
+    private void InitGrid(int width, int height)
     {
         SpriteRenderer spriteRenderer = tilePrefab.GetComponent<SpriteRenderer>();
         float gridW = spriteRenderer.bounds.size.x; // Get size of sprite.
         float gridH = spriteRenderer.bounds.size.y;
-        Vector3 tilePos = transform.position;
+        Vector3 tilePos = new Vector3(transform.position.x,
+                                      transform.position.y + (gridH * (height - 1)), // Tile at y position 0 should be at the top of the screen.
+                                      transform.position.z);
 
         // Destroy old grid.
         if (tileGrid != null)
@@ -90,6 +100,9 @@ public abstract class Map : MonoBehaviour
             }
         }
 
+        sizeX = width;
+        sizeY = height;
+
         // Create new grid.
         tileGrid = new Tile[sizeX, sizeY];
 
@@ -101,13 +114,14 @@ public abstract class Map : MonoBehaviour
 
                 newTile.transform.parent = transform;
                 newTile.Pos = new Vector2Int(x, y);
+                newTile.TileMap = this;
                 tileGrid[x, y] = newTile;
 
-                tilePos.y += gridH;
+                tilePos.y -= gridH;
             }
 
             tilePos.x += gridW;
-            tilePos.y = transform.position.y;
+            tilePos.y = transform.position.y + (gridH * (sizeY - 1));
         }
 
 
@@ -304,11 +318,61 @@ public abstract class Map : MonoBehaviour
     public void ButtonClear()
     {
         ClearGrid();
-        InitGrid();
+        InitGrid(sizeX, sizeY);
     }
 
     public virtual void RunPathfindingAlgorithm()
     {
+        
+    }
+
+    // Load in a level from a text asset file.
+    public void LoadLevel()
+    {
+        if (levelAsset == null)
+        {
+            Debug.Log("Level asset not set");
+            return;
+        }
+
+        string levelString = levelAsset.text;
+
+        string[] rows = levelString.Split(System.Environment.NewLine.ToCharArray()); // Split the rows on newline.
+        int numRows = rows.Length;
+
+        if (numRows == 0)
+        {
+            Debug.Log("No data in file");
+            return; 
+        }
+
+        int numColumns = rows[0].Length; // Assume every row has the same number of entries.
+
+        // Create new tile grid.
+        InitGrid(numColumns, numRows); 
+
+        // Translate char grid to tile grid.
+        for (int row = 0; row < numRows; row++)
+        {
+            string rowString = rows[row];
+
+            for (int column = 0; column < numColumns; column++)
+            {
+                TileType tile = gameData.GetTypeFromChar(rowString[column]);
+
+                if (tile == TileType.Start)
+                {
+                    SetStartPos(column, row);
+                }
+
+                if (tile == TileType.End)
+                {
+                    SetDestPos (column, row);
+                }
+
+                tileGrid[column, row].State = tile;
+            }
+        }
         
     }
 
