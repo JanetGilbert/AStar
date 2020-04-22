@@ -20,9 +20,7 @@ public abstract class Map : MonoBehaviour
     [HeaderAttribute("The scriptable object that holds data about tile definitions.")]
     public GameData gameData = null;
 
-    [HeaderAttribute("The level to load.")]
-    [SerializeField]
-    private TextAsset levelAsset = null; 
+
 
 
     // Store tiles in grid.
@@ -329,50 +327,7 @@ public abstract class Map : MonoBehaviour
     // Load in a level from a text asset file.
     public void LoadLevel()
     {
-        if (levelAsset == null)
-        {
-            Debug.Log("Level asset not set");
-            return;
-        }
-
-        string levelString = levelAsset.text;
-
-        string[] rows = levelString.Split(System.Environment.NewLine.ToCharArray()); // Split the rows on newline.
-        int numRows = rows.Length;
-
-        if (numRows == 0)
-        {
-            Debug.Log("No data in file");
-            return; 
-        }
-
-        int numColumns = rows[0].Length; // Assume every row has the same number of entries.
-
-        // Create new tile grid.
-        InitGrid(numColumns, numRows); 
-
-        // Translate char grid to tile grid.
-        for (int row = 0; row < numRows; row++)
-        {
-            string rowString = rows[row];
-
-            for (int column = 0; column < numColumns; column++)
-            {
-                TileType tile = gameData.GetTypeFromChar(rowString[column]);
-
-                if (tile == TileType.Start)
-                {
-                    SetStartPos(column, row);
-                }
-
-                if (tile == TileType.End)
-                {
-                    SetDestPos (column, row);
-                }
-
-                tileGrid[column, row].State = tile;
-            }
-        }
+  
         
     }
 
