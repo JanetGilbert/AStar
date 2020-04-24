@@ -58,6 +58,8 @@ public abstract class Map : MonoBehaviour
             _drawState = value;
         }
     }
+
+    public TextAsset levelAsset;
  
     // Virtual so that it can be overriden in derived class.
     protected virtual void Start()
@@ -327,8 +329,51 @@ public abstract class Map : MonoBehaviour
     // Load in a level from a text asset file.
     public void LoadLevel()
     {
-  
-        
+        if (levelAsset == null)
+        {
+            Debug.Log("Level asset not set");
+            return;
+        }
+
+        string levelString = levelAsset.text;
+
+        string [] rows = levelString.Split(System.Environment.NewLine.ToCharArray());
+
+        int numRows = rows.Length;
+
+        if (numRows == 0)
+        {
+            Debug.Log("No data in file");
+            return;
+        }
+
+        int numColumns = rows[0].Length; // Assume every row has the same length.
+
+        InitGrid(numColumns, numRows);
+
+        for (int row = 0; row < numRows; row++)
+        {
+            string rowString = rows[row];
+
+            for (int column = 0; column < numColumns; column++)
+            {
+                TileType tile = gameData.GetTypeFromChar(rowString[column]);
+
+                if (tile == TileType.Start)
+                {
+                    SetStartPos(column, row);
+                }
+
+
+                if (tile == TileType.End)
+                {
+                    SetDestPos(column, row);
+                }
+
+
+                tileGrid[column, row].State = tile;
+            }
+        }
     }
 
 
